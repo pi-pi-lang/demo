@@ -1,0 +1,96 @@
+#include <iostream>  
+#include <opencv2/opencv.hpp>  
+#include <opencv2/highgui/highgui.hpp>  
+
+using namespace cv;
+using namespace std;
+void salt(Mat &image, Mat & result, int k)  //(原图像，结果图像，取的椒盐点的个数)//
+{
+	image.copyTo(result);
+	for (; k > 0; k--)
+	{
+		int i = rand() % result.rows;
+		int j = rand() % result.cols;  //随机取点
+		if (result.channels() == 1)  //channels表示图像的通道数，灰度图为1，一般的图为R G B三个通道
+		{
+			result.at<uchar>(i, j) = 255;  //把这个随机的像素点变为白色
+		}
+		if (result.channels() == 3)
+		{
+			result.at<Vec3b>(i, j)[0] = 255;
+			result.at<Vec3b>(i, j)[1] = 255;
+			result.at<Vec3b>(i, j)[2] = 255;  //把这个随机的像素点变为白色
+		}
+	}
+}
+uchar sort(uchar n1, uchar n2, uchar n3, uchar n4, uchar n5, uchar n6, uchar n7, uchar n8, uchar n9)  //九个像素点的像素值进行排序
+{
+	uchar *ptr = new uchar[9];
+	uchar temp;
+	*ptr = n1;
+	*(ptr + 1) = n2;
+	*(ptr + 2) = n3;
+	*(ptr + 3) = n4;
+	*(ptr + 4) = n5;
+	*(ptr + 5) = n6;
+	*(ptr + 6) = n7;
+	*(ptr + 7) = n8;
+	*(ptr + 8) = n9;
+
+	for (int i = 0; i < 9; i++)
+	{
+		for (int j = 0; j < 9; j++)
+		{
+			if (ptr[i] > ptr[j])
+			{
+				temp = ptr[i];
+				ptr[i] = ptr[j];
+				ptr[j] = temp;
+			}
+		}
+	}
+
+	temp = ptr[4];
+	delete[] ptr;
+	return temp;
+}
+void middleFilter(Mat& image, Mat & result)
+{
+	image.copyTo(result);
+	for (int i = 0; i < result.rows; i++)
+	{
+		for (int j = 0; j < result.cols; j++)
+		{
+			if ((i > 0) && (i < result.rows - 1) && (j > 0) && (j < result.cols - 1))  //排除掉边缘的点
+			{
+
+				result.at<Vec3b>(i, j)[0] = sort(result.at<Vec3b>(i - 1, j - 1)[0], result.at<Vec3b>(i - 1, j)[0], result.at<Vec3b>(i - 1, j + 1)[0]
+					, result.at<Vec3b>(i, j - 1)[0], result.at<Vec3b>(i, j)[0], result.at<Vec3b>(i, j + 1)[0]
+					, result.at<Vec3b>(i + 1, j - 1)[0], result.at<Vec3b>(i + 1, j)[0], result.at<Vec3b>(i + 1, j + 1)[0]);
+
+				result.at<Vec3b>(i, j)[1] = sort(result.at<Vec3b>(i - 1, j - 1)[1], result.at<Vec3b>(i - 1, j)[1], result.at<Vec3b>(i - 1, j + 1)[1]
+					, result.at<Vec3b>(i, j - 1)[1], result.at<Vec3b>(i, j)[1], result.at<Vec3b>(i, j + 1)[1]
+					, result.at<Vec3b>(i + 1, j - 1)[1], result.at<Vec3b>(i + 1, j)[1], result.at<Vec3b>(i + 1, j + 1)[1]);
+
+				result.at<Vec3b>(i, j)[2] = sort(result.at<Vec3b>(i - 1, j - 1)[2], result.at<Vec3b>(i - 1, j)[2], result.at<Vec3b>(i - 1, j + 1)[2]
+					, result.at<Vec3b>(i, j - 1)[2], result.at<Vec3b>(i, j)[2], result.at<Vec3b>(i, j + 1)[2]
+					, result.at<Vec3b>(i + 1, j - 1)[2], result.at<Vec3b>(i + 1, j)[2], result.at<Vec3b>(i + 1, j + 1)[2]);
+			}
+		}
+	}
+}
+int main()
+{
+	Mat image, result1, result2,result3;
+	cout << int(sort(1, 4, 8, 0, 2, 3, 5, 6, 7)) << endl;
+	image = imread("data\\hhh.jpg", IMREAD_UNCHANGED);
+	salt(image, result1, 30000);
+	middleFilter(result1, result2);
+	medianBlur(result1,result3,3);
+	imshow("原图", image);
+	imshow("椒盐噪声", result1);
+	imshow("中值滤波", result2);
+	imshow("medianBlur中值滤波", result3);
+	waitKey(0);
+	return 0;
+}
