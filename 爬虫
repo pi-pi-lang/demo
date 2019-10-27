@@ -19,15 +19,9 @@ def get_title(url):
     }
     # 进行认证，不然抓取到的不是真的页面
     cookies = {
-        'ASPSESSIONIDQAQSATRD': 'PMFKOKGDAPAHEJIMALKMOMNB',
-        'ASPSESSIONIDSCQRBTRC': 'MKHHDMPDIODFAKJPEHFCJPPO',
-        'ASPSESSIONIDQAQRBTQC': 'HMNFKDBAJAIDGGBLNGEKFEAL',
-        'ASPSESSIONIDSARRBSRD': 'CNHPGNIAFOPDGAGAIJIBHHBC',
-        'ASPSESSIONIDSCQSBSRD': 'PJIDPEKAFJIKIIEJHAPANAPL',
-        'ASPSESSIONIDQCSTDRRC': 'BGKLGMLAPONIHGBJIFJLIDPE',
         'ASPSESSIONIDCATACQST': 'IJGMEILCDHALEEPDCDLECDOE'
     }
-    # 前面的都已经过期了，最后一个cookies是刚刚从内部网上复制下来的
+    # 这一个cookies是刚刚从内部网上扒下来的，如果不行重新去扒就好
     # 防止爬虫突然断掉，使其重复执行访问
     tries = 7
     while tries > 0:
@@ -38,7 +32,7 @@ def get_title(url):
             tries -= 1
             print(e)
     # 防止中文乱码
-    print(rsp)
+    # print(rsp)
     rsp.encoding = rsp.apparent_encoding
     # print(rsp.encoding)
     data = rsp.text
@@ -46,7 +40,7 @@ def get_title(url):
     soup = BeautifulSoup(data, 'html.parser')
     soup_tag = soup.find_all('a', target="_blank")
     # print(soup)
-    print(soup_tag)
+    # print(soup_tag)
     title = []
     for item in soup_tag:
         name = item.text[1::]
